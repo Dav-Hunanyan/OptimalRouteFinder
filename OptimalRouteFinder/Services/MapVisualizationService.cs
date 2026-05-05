@@ -23,23 +23,20 @@ namespace OptimalRouteFinder.Services
             _canvas = c;
         }
 
-        /// <summary>
-        /// Render all cities and roads
-        /// </summary>
         public void Render(City? startCity = null, City? endCity = null)
         {
             if (_canvas == null) return;
             _canvas.Children.Clear();
             _cityShapes.Clear();
 
-            ArrangeCities(); // compute X/Y positions in a circular layout
+            ArrangeCities(); 
 
             // draw roads first
             foreach (var a in _graph.Cities)
             {
                 foreach (var (b, d) in _graph.Roads[a])
                 {
-                    if (a.Name.CompareTo(b.Name) >= 0) continue; // draw each road once
+                    if (a.Name.CompareTo(b.Name) >= 0) continue; 
                     var line = new Line
                     {
                         X1 = a.X,
@@ -51,7 +48,6 @@ namespace OptimalRouteFinder.Services
                     };
                     _canvas.Children.Add(line);
 
-                    // distance label
                     var txt = new TextBlock
                     {
                         Text = d.ToString("0"),
@@ -64,10 +60,9 @@ namespace OptimalRouteFinder.Services
                 }
             }
 
-            // draw cities
             foreach (var c in _graph.Cities)
             {
-                Brush fill = Brushes.White; // default
+                Brush fill = Brushes.DarkGray; // default
                 if (c == startCity) fill = Brushes.LightGreen;   // start city
                 else if (c == endCity) fill = Brushes.OrangeRed; // end city
 
@@ -76,7 +71,7 @@ namespace OptimalRouteFinder.Services
                     Width = 24,
                     Height = 24,
                     Fill = fill,
-                    Stroke = Brushes.DimGray,
+                    Stroke = Brushes.Black,
                     StrokeThickness = 1
                 };
                 Canvas.SetLeft(el, c.X - 12);
@@ -96,20 +91,17 @@ namespace OptimalRouteFinder.Services
             }
         }
 
-        /// <summary>
-        /// Draws a path overlay on top of the map
-        /// </summary>
         public async Task HighlightPathAsync(List<City> path)
         {
             if (_canvas == null || path == null || path.Count < 2) return;
 
-            // Clear and redraw the map normally
+           
             _canvas.Children.Clear();
             Render();
 
             var points = path.Select(c => new Point(c.X, c.Y)).ToList();
 
-            // List to hold the "finished" green segments
+           
             var finishedLines = new List<Polyline>();
 
             for (int i = 0; i < points.Count - 1; i++)
@@ -117,10 +109,10 @@ namespace OptimalRouteFinder.Services
                 var start = points[i];
                 var end = points[i + 1];
 
-                // line for the current segment
+              
                 var currentLine = new Polyline
                 {
-                    Stroke = Brushes.LightGreen,
+                    Stroke = Brushes.DarkGreen,
                     StrokeThickness = 4,
                     StrokeStartLineCap = PenLineCap.Round,
                     StrokeEndLineCap = PenLineCap.Round
@@ -128,29 +120,26 @@ namespace OptimalRouteFinder.Services
                 currentLine.Points.Add(start);
                 _canvas.Children.Add(currentLine);
 
-                // Animate this segment
+               
                 await AnimateSegment(currentLine, start, end, 0.8);
 
-                // After finished, make it green
-                currentLine.Stroke = Brushes.GreenYellow;
+
+                currentLine.Stroke = Brushes.Green;
                 finishedLines.Add(currentLine);
             }
-
-            // Recolor start, end, must-visit/intermediate cities
+          
             foreach (var c in _graph.Cities)
             {
                 if (!_cityShapes.ContainsKey(c)) continue;
                 var el = _cityShapes[c];
-                if (c == path.First()) el.Fill = Brushes.LightGreen;
+                if (c == path.First()) el.Fill = Brushes.Green;
                 else if (c == path.Last()) el.Fill = Brushes.Red;
                 else if (path.Contains(c)) el.Fill = Brushes.DarkGray;
                 else el.Fill = Brushes.White;
             }
         }
 
-        /// <summary>
-        /// Arrange city coordinates in a circular layout to avoid overlap
-        /// </summary>
+    
         private void ArrangeCities()
         {
             if (_canvas == null || _graph.Cities.Count == 0) return;
@@ -159,7 +148,7 @@ namespace OptimalRouteFinder.Services
             double h = _canvas.ActualHeight;
 
             int n = _graph.Cities.Count;
-            double radius = Math.Min(w, h) / 2 - 40; // keep some padding
+            double radius = Math.Min(w, h) / 2 - 40; 
             double centerX = w / 2;
             double centerY = h / 2;
 
@@ -168,11 +157,11 @@ namespace OptimalRouteFinder.Services
                 double angle = 2 * Math.PI * i / n;
                 var city = _graph.Cities[i];
 
-                // Normalized position on a circle (0..1)
+           
                 city.NormX = 0.5 + 0.5 * Math.Cos(angle);
                 city.NormY = 0.5 + 0.5 * Math.Sin(angle);
 
-                // Actual pixel position
+           
                 city.X = centerX + radius * Math.Cos(angle);
                 city.Y = centerY + radius * Math.Sin(angle);
             }
@@ -182,7 +171,7 @@ namespace OptimalRouteFinder.Services
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            // Add the start point if it's the first segment
+           
             if (line.Points.Count == 0)
                 line.Points.Add(start);
 
@@ -200,7 +189,7 @@ namespace OptimalRouteFinder.Services
                 tcs.SetResult(true);
             };
 
-            // We animate a "dummy" object and update line manually
+         
             var dummy = new AnimatablePoint();
             dummy.PointChanged += (p) =>
             {

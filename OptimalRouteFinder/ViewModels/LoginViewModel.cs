@@ -30,7 +30,7 @@ namespace OptimalRouteFinder.ViewModels
 
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
-                MessageBox.Show("Please enter username and password");
+                MessageBox.Show("Խնդրում ենք մուտքագրել օգտանունը և գաղտնաբառը");
                 return;
             }
 
@@ -38,7 +38,7 @@ namespace OptimalRouteFinder.ViewModels
 
             if (user == null)
             {
-                MessageBox.Show("Invalid username or password");
+                MessageBox.Show("Սխալ օգտանուն կամ գաղտնաբառ");
                 return;
             }
 

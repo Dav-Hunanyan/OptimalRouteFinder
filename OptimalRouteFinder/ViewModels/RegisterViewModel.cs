@@ -31,29 +31,29 @@ namespace OptimalRouteFinder.ViewModels
                 string.IsNullOrWhiteSpace(Password) ||
                 string.IsNullOrWhiteSpace(ConfirmPassword))
             {
-                MessageBox.Show("Please fill all required fields");
+                MessageBox.Show("Խնդրում ենք լրացնել բոլոր պարտադիր դաշտերը");
                 return;
             }
             if (!IsValidEmail(Email))
             {
-                MessageBox.Show("Email is not valid");
+                MessageBox.Show("Էլեկտրոնային փոստի հասցեն սխալ է");
                 return;
             }
 
             if (Password != ConfirmPassword)
             {
-                MessageBox.Show("Passwords do not match");
+                MessageBox.Show("Գաղտնաբառերը չեն համընկնում");
                 return;
             }
             if (!IsValidPassword(Password))
             {
-                MessageBox.Show("Password must be at least 8 characters, include uppercase, lowercase, number, and special character");
+                MessageBox.Show("Գաղտնաբառը պետք է պարունակի առնվազն 8 նիշ, ներառյալ մեծատառ, փոքրատառ, թիվ և հատուկ նշան");
                 return;
             }
             try
             {
                 _userService.RegisterUser(Username, Email, Password);
-                MessageBox.Show("Registration successful! Please login.");
+                MessageBox.Show("Գրանցումը հաջողությամբ ավարտվեց: Խնդրում ենք մուտք գործել համակարգ");
                 OpenLogin(mapDbContext);
             }
             catch (ApplicationException ex)

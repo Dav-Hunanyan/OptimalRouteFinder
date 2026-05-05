@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -297,36 +297,32 @@ namespace OptimalRouteFinder.ViewModels
 
             _viz.Render(StartCity, EndCity);
 
-            StatusText = $"Template '{SelectedTemplateName}' loaded and drawn.";
+            StatusText = $"«{SelectedTemplateName}» շաբլոնը բեռնվեց և պատկերվեց:";
         }
 
         private async Task SaveTemplateAsync()
         {
             if (string.IsNullOrWhiteSpace(NewTemplateName))
             {
-                StatusText = "Save failed: Template name is empty.";
-                AddLog("Save failed: Template name is empty.");
+                StatusText = "Պահպանումը ձախողվեց. շաբլոնի անունը նշված չէ:";               
                 return;
             }
 
             if (!Cities.Any())
             {
-                StatusText = "Save failed: No cities found to save.";
-                AddLog("Save failed: No cities found to save.");
+                StatusText = "Պահպանումը ձախողվեց. պահպանման ենթակա քաղաքներ չկան:";              
                 return;
             }
 
             try
             {
                 await _templateService.SaveTemplateAsync(NewTemplateName, Cities.ToList(), Roads.ToList());
-                StatusText = $"Template '{NewTemplateName}' saved successfully.";
-                AddLog($"Template '{NewTemplateName}' saved successfully.");
+                StatusText = $"«{NewTemplateName}» շաբլոնը հաջողությամբ պահպանվեց:";               
                 await LoadTemplateNamesAsync();
             }
             catch (Exception ex)
             {
-                StatusText = $"Save failed: {ex.Message}";
-                AddLog($"Save failed: {ex.Message}");
+                StatusText = $"Պահպանումը ձախողվեց. {ex.Message}";            
             }
         }
 
@@ -334,8 +330,7 @@ namespace OptimalRouteFinder.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SelectedTemplate))
             {
-                StatusText = "Load failed: No template selected.";
-                AddLog("Load failed: No template selected.");
+                StatusText = "Բեռնումը ձախողվեց. շաբլոն ընտրված չէ:";              
                 return;
             }
 
@@ -345,8 +340,7 @@ namespace OptimalRouteFinder.ViewModels
 
                 if (!cities.Any())
                 {
-                    StatusText = $"Load failed: Template '{SelectedTemplate}' has no cities.";
-                    AddLog($"Load failed: Template '{SelectedTemplate}' has no cities.");
+                    StatusText = $"Բեռնումը ձախողվեց. «{SelectedTemplate}» շաբլոնում քաղաքներ չկան:";                  
                     return;
                 }
 
@@ -371,38 +365,33 @@ namespace OptimalRouteFinder.ViewModels
                 NewTemplateName = SelectedTemplate;
                 OnPropertyChanged(nameof(NewTemplateName));
                 OnPropertyChanged(nameof(SelectedTemplate));
-                StatusText = $"Template '{SelectedTemplate}' loaded successfully.";
-                AddLog($"Template '{SelectedTemplate}' loaded successfully.");
+                StatusText = $"«{SelectedTemplate}» շաբլոնը հաջողությամբ բեռնվեց:";               
             }
             catch (Exception ex)
             {
-                StatusText = $"Load failed: {ex.Message}";
-                AddLog($"Load failed: {ex.Message}");
+                StatusText = $"Բեռնումը ձախողվեց. {ex.Message}";             
             }
         }
 
         private async Task DeleteTemplateAsync()
         {
-            if (string.IsNullOrWhiteSpace(NewTemplateName))
+            if (string.IsNullOrWhiteSpace(SelectedTemplate)) 
             {
-                StatusText = "Delete failed: No template selected.";
-                AddLog("Delete failed: No template selected.");
+                StatusText = "Ջնջումը ձախողվեց. շաբլոն ընտրված չէ:";               
                 return;
             }
 
             try
             {
                 await _templateService.DeleteTemplateAsync(SelectedTemplate);
-                StatusText = $"Template '{SelectedTemplate}' deleted successfully.";
-                AddLog($"Template '{SelectedTemplate}' deleted successfully.");
+                StatusText = $"«{SelectedTemplate}» շաբլոնը հաջողությամբ ջնջվեց:";              
                 ClearAll();
                 SelectedTemplate = null;
                 await LoadTemplateNamesAsync();
             }
             catch (Exception ex)
             {
-                StatusText = $"Delete failed: {ex.Message}";
-                AddLog($"Delete failed: {ex.Message}");
+                StatusText = $"Ջնջումը ձախողվեց. {ex.Message}";             
             }
         }
 
@@ -430,7 +419,7 @@ namespace OptimalRouteFinder.ViewModels
 
             if (Cities.Any(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
-                StatusText = "City already exists.";
+                StatusText = "Քաղաքն արդեն գոյություն ունի:";
                 return;
             }
 
@@ -440,7 +429,7 @@ namespace OptimalRouteFinder.ViewModels
             NewCityName = string.Empty;
             OnPropertyChanged(nameof(NewCityName));
             OnPropertyChanged(nameof(MustVisitOptions));
-            StatusText = $"Added city {city.Name}";
+            StatusText = $"«{city.Name}» քաղաքը ավելացվեց:";
             _viz.Render(StartCity, EndCity);
         }
 
@@ -450,22 +439,22 @@ namespace OptimalRouteFinder.ViewModels
 
             if (!double.TryParse(RoadDistance, out var distance))
             {
-                StatusText = "Distance parse error.";
+                StatusText = "Հեռավորության սխալ ձևաչափ:";
                 return;
             }
 
             if (RoadFrom == RoadTo)
             {
-                StatusText = "From and To cannot be the same.";
+                StatusText = "Մեկնարկային և վերջնական քաղաքները չեն կարող նույնը լինել:";
                 return;
             }
 
             bool exists = (_graph.Roads.ContainsKey(RoadFrom) && _graph.Roads[RoadFrom].Any(x => x.Item1 == RoadTo))
-                       || (_graph.Roads.ContainsKey(RoadTo) && _graph.Roads[RoadTo].Any(x => x.Item1 == RoadFrom));
+                        || (_graph.Roads.ContainsKey(RoadTo) && _graph.Roads[RoadTo].Any(x => x.Item1 == RoadFrom));
 
             if (exists)
             {
-                StatusText = $"Road between {RoadFrom.Name} and {RoadTo.Name} already exists.";
+                StatusText = $"«{RoadFrom.Name}» և «{RoadTo.Name}» քաղաքների միջև ճանապարհն արդեն գոյություն ունի:";
                 return;
             }
 
@@ -480,7 +469,7 @@ namespace OptimalRouteFinder.ViewModels
             };
             Roads.Add(roadVm);
 
-            StatusText = $"Added road: {roadVm.Display}";
+            StatusText = $"Ճանապարհն ավելացվեց. {roadVm.Display}";
             _viz.Render(StartCity, EndCity);
         }
 
@@ -500,7 +489,7 @@ namespace OptimalRouteFinder.ViewModels
             foreach (var other in _graph.Roads.Keys.ToList())
                 _graph.Roads[other].RemoveAll(r => r.Item1 == city);
 
-            LogLines.Add($"Deleted city: {city.Name}");
+            LogLines.Add($"Քաղաքը ջնջվեց. {city.Name}");
             _viz.Render();
         }
 
@@ -512,7 +501,7 @@ namespace OptimalRouteFinder.ViewModels
             var roadVm = Roads.FirstOrDefault(r => (r.From == from && r.To == to) || (r.From == to && r.To == from));
             if (roadVm != null) Roads.Remove(roadVm);
 
-            LogLines.Add($"Deleted road: {from.Name} - {to.Name}");
+            LogLines.Add($"Ճանապարհը ջնջվեց. {from.Name} - {to.Name}");
             _viz.Render();
         }
 
@@ -523,7 +512,7 @@ namespace OptimalRouteFinder.ViewModels
 
             if (StartCity == null || EndCity == null)
             {
-                StatusText = "Start or End not set.";
+                StatusText = "Մեկնարկային կամ վերջնական կետը սահմանված չէ:";
                 return;
             }
 
@@ -532,7 +521,7 @@ namespace OptimalRouteFinder.ViewModels
             if (!nodes.Contains(StartCity)) nodes.Insert(0, StartCity);
             if (!nodes.Contains(EndCity)) nodes.Add(EndCity);
 
-            StatusText = "Computing pairwise shortest paths...";
+            StatusText = "Հաշվարկվում են կարճագույն հեռավորությունները...";
             int n = nodes.Count;
             var dist = new double[n, n];
             var allPreds = new List<Dictionary<City, City>>();
@@ -545,12 +534,12 @@ namespace OptimalRouteFinder.ViewModels
                     dist[i, j] = d.ContainsKey(nodes[j]) ? d[nodes[j]] : double.PositiveInfinity;
             }
 
-            StatusText = "Solving TSP...";
+            StatusText = "Որոնվում է օպտիմալ երթուղին (TSP)...";
             var (tspPath, tspCost) = HeldKarpTSP.Solve(dist, nodes, 0, n - 1);
 
             if (tspPath == null || tspPath.Count == 0)
             {
-                StatusText = "No possible route.";
+                StatusText = "Հնարավոր երթուղի չի գտնվել:";
                 return;
             }
 
@@ -578,7 +567,7 @@ namespace OptimalRouteFinder.ViewModels
 
                 if (segment.Count == 0)
                 {
-                    StatusText = $"No route between {a.Name} and {b.Name}.";
+                    StatusText = $"«{a.Name}» և «{b.Name}» քաղաքների միջև կապ չկա:";
                     return;
                 }
 
@@ -586,10 +575,10 @@ namespace OptimalRouteFinder.ViewModels
                 else { segment.RemoveAt(0); fullPath.AddRange(segment); }
             }
 
-            ResultText = $"Route: {string.Join(" -> ", fullPath.Select(c => c.Name))}\nTotal distance: {tspCost} km";
+            ResultText = $"Երթուղի: {string.Join(" -> ", fullPath.Select(c => c.Name))}\nԸնդհանուր հեռավորությունը: {tspCost} կմ";
             OnPropertyChanged(nameof(ResultText));
 
-            StatusText = "Done.";
+            StatusText = "Պատրաստ է:";
             await _viz.HighlightPathAsync(fullPath);
         }
 
@@ -605,7 +594,7 @@ namespace OptimalRouteFinder.ViewModels
             ResultText = string.Empty;
             NewTemplateName = string.Empty;
             SelectedTemplate = string.Empty;
-            StatusText = "Cleared all cities and roads.";
+            StatusText = "Տվյալները մաքրվեցին:";
             _viz.Render(StartCity, EndCity);
         }
 
@@ -631,7 +620,6 @@ namespace OptimalRouteFinder.ViewModels
         }
         private void Logout()
         {
-            // _templateService.CreateTemplateWithFullUSMap();
             UserSession.CurrentUser = null;
 
             var loginWindow = new LoginView();
